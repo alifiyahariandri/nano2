@@ -21,14 +21,10 @@ struct PetSunscreenView: View {
     
     var body: some View {
         VStack {
-            // Use Image as the background
             Image(imageName)
                 .animation(.bouncy)
-//                .resizable().frame(width: 350, height: 460)
                 .padding(50)
-//                .scaledToFit()
                 .overlay(
-                    // Canvas for drawing lines over the image
                     Canvas { context, _ in
                         for line in lines {
                             var path = Path()
@@ -36,7 +32,7 @@ struct PetSunscreenView: View {
                             context.stroke(path, with: .color(line.color.opacity(0.03)), lineWidth: line.lineWidth)
                         }
                     }
-                    .clipShape(SVGPath()) // Clip the canvas with the SVG path shape
+                    .clipShape(SVGPath())
                 )
                 .gesture(
                     DragGesture(minimumDistance: 0, coordinateSpace: .local)
@@ -107,24 +103,14 @@ struct PetSunscreenView: View {
     }
 }
 
-// Replace this struct with the Path representation of your SVG
 struct SVGPath: Shape {
     func path(in rect: CGRect) -> Path {
         var path = Path()
-        // Add your SVG path data here
-        // For example, the following code represents a simple circle:
+
         path.addEllipse(in: rect, transform: CGAffineTransform(scaleX: 1, y: 1.25))
-        // Example SVG Path Data (replace with your actual path data)
-        //        path.move(to: CGPoint(x: 50, y: 50))
-        //        path.addLine(to: CGPoint(x: 150, y: 50))
-        //        path.addLine(to: CGPoint(x: 100, y: 150))
+    
         path.closeSubpath()
         return path
     }
 }
 
-// struct ContentView_Previews: PreviewProvider {
-//    static var previews: some View {
-//        PetSunscreenView(isSunscreen: cons)
-//    }
-// }

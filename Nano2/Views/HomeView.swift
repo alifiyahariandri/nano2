@@ -38,10 +38,10 @@ struct HomeView: View {
                 }
                                     
                 if let current = currentWeather {
-                    if current.condition.description == "Clear" {
-                        SpriteView(scene: Fall(fileName: "Clear.sks"), options: [.allowsTransparency])
-                    } else if current.condition.description.contains("Haze") {
-                        SpriteView(scene: Fall(fileName: "Haze.sks"), options: [.allowsTransparency])
+                    if current.condition.description.contains("Clear") {
+                        SpriteView(scene: ParticleScene(fileName: "Clear.sks", anchor: CGPoint(x: 0.5, y: 1)), options: [.allowsTransparency])
+                    } else if current.condition.description.contains("Haze") || current.condition.description.contains("Fog") {
+                        SpriteView(scene: ParticleScene(fileName: "Haze.sks", anchor: CGPoint(x: 0.5, y: 1)), options: [.allowsTransparency])
                     } else if current.condition.description.contains("Rain") {
                         SpriteView(scene: Fall(fileName: "RainFall.sks"), options: [.allowsTransparency])
                             .edgesIgnoringSafeArea(.all) // Make sure it covers the whole screen
@@ -217,58 +217,9 @@ struct HomeView: View {
     }
 }
 
-// struct ActionButton: View {
-////    @State var isActive: Bool = false
-//
-//    var action: String
-//
-//    var body: some View {
-//        ZStack {
-//            Button {
-////                PetSunscreenView()
-//            } label: {
-//                ZStack {
-//                    Image("button")
-//                    Image(action)
-//                }
-//            }
-//
-////            Button {
-////                isActive.toggle()
-////                print(isActive)
-////            } label: {
-////                Image("plus")
-////            }.offset(x: 70, y: 55)
-//
-////            Button {} label: {
-////            Image("count")
-//            ////            }
-////                .offset(x: 70, y: -65)
-//        }
-////        if isActive {
-////            ModalView(isActive: $isActive, title: "title", description: "desc", button: "go", action: "-")
-////        }
-//    }
-// }
-
 #Preview {
     HomeView()
 }
-
-// class RainFall: SKScene {
-//    override func sceneDidLoad() {
-//        size = UIScreen.main.bounds.size
-//        scaleMode = .resizeFill
-//
-//        anchorPoint = CGPoint(x: 0.5, y: 1)
-//
-//        backgroundColor = .clear
-//
-//        let node = SKEmitterNode(fileNamed: "RainFall.sks")!
-//        addChild(node)
-//
-//    }
-// }
 
 class Fall: SKScene {
     init(fileName: String) {
@@ -299,6 +250,30 @@ class Slide: SKScene {
         super.init(size: UIScreen.main.bounds.size)
         self.scaleMode = .resizeFill
         self.anchorPoint = CGPoint(x: 0.0, y: 1)
+        self.backgroundColor = .clear
+        
+        if let node = SKEmitterNode(fileNamed: fileName) {
+            addChild(node)
+        } else {
+            print("Error: Could not load emitter node with file name: \(fileName)")
+        }
+    }
+    
+    @available(*, unavailable)
+    required init?(coder aDecoder: NSCoder) {
+        fatalError("init(coder:) has not been implemented")
+    }
+    
+    override func sceneDidLoad() {
+        // Additional setup if needed
+    }
+}
+
+class ParticleScene: SKScene {
+    init(fileName: String, anchor: CGPoint) {
+        super.init(size: UIScreen.main.bounds.size)
+        self.scaleMode = .resizeFill
+        self.anchorPoint = anchor
         self.backgroundColor = .clear
         
         if let node = SKEmitterNode(fileNamed: fileName) {

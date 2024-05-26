@@ -10,10 +10,6 @@ import SwiftUI
 struct MapView: View {
     @State var showAlert: Bool = false
     @ObservedObject var locationManager = LocationManager()
-//    @State private var region = MKCoordinateRegion(
-//        center: CLLocationCoordinate2D(latitude: 37.7749, longitude: -122.4194),
-//        span: MKCoordinateSpan(latitudeDelta: 0.05, longitudeDelta: 0.05)
-//    )
     
     @State var region: MKCoordinateRegion
     
@@ -26,7 +22,6 @@ struct MapView: View {
                     if locationManager.location != nil {
                         Map(coordinateRegion: $region, interactionModes: .all, showsUserLocation: true)
                             .onChange(of: region) { newRegion in
-                                // Ketika region berubah (misalnya karena didrag), update region
                                 region = newRegion
                                 
                                 print(region)
@@ -51,17 +46,10 @@ struct MapView: View {
                         
                         NavigationLink(
                             destination: CustomLocation(customLocation: CLLocation(latitude: region.center.latitude, longitude: region.center.longitude)),
-    //                        isActive: $isActive,
                             label: {
                                 Image("yes").resizable().aspectRatio(contentMode: .fit).frame(width: 85, height: 85)
                             }
                         )
-                        
-    //                    Button {
-    //                        CustomLocation(customLocation: CLLocation(latitude: region.center.latitude, longitude: region.center.longitude))
-    //                    } label: {
-    //                        Image("yes").resizable().aspectRatio(contentMode: .fit).frame(width: 85, height: 85)
-    //                    }
                     }
                     
                     Spacer().frame(height: 35)
@@ -79,15 +67,9 @@ struct MapView: View {
             }
         }
         .navigationBarBackButtonHidden()
-
     }
         
-    func locationUpdated(location: CLLocation?, error: Error?) {
-//        region = MKCoordinateRegion(
-//            center: CLLocationCoordinate2D(latitude: locationManager.location?.latitude ?? 0.0, longitude: locationManager.location?.longitude ?? 0.0),
-//            span: MKCoordinateSpan(latitudeDelta: 0.05, longitudeDelta: 0.05)
-//        )
-    }
+    func locationUpdated(location: CLLocation?, error: Error?) {}
 }
 
 extension MKCoordinateRegion: Equatable {
@@ -98,4 +80,3 @@ extension MKCoordinateRegion: Equatable {
             lhs.span.longitudeDelta == rhs.span.longitudeDelta
     }
 }
-
