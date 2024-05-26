@@ -1,5 +1,5 @@
 //
-//  Test.swift
+//  HomeView.swift
 //  Nano2
 //
 //  Created by Alifiyah Ariandri on 20/05/24.
@@ -12,81 +12,129 @@ import SwiftUI
 import WeatherKit
 
 struct HomeView: View {
-    @State var attribution: WeatherAttribution?
-    @State var isLoading = true
+    @State private var isBouncing = false
+
     @State var currentLocation: CLLocation?
-    
-    @State var stateText: String = "Loading.."
-    
-    @State var currentWeather: CurrentWeather?
     
     @ObservedObject var locationManager = LocationManager()
     
     @State var isSunscreen: Bool = false
-    
-    let formatter = DateFormatter()
-    
-    var weatherServiceHelper = WeatherData.shared
-    
+            
     var body: some View {
         NavigationStack {
             ZStack {
-                if locationManager.currentWeather?.isDaylight ?? false {
-                    Image("wallpaper-day")
-                } else {
-                    Image("wallpaper-night")
-                }
+                if let current = locationManager.currentWeather {
+                    if current.isDaylight {
+                        Image("wallpaper-day")
+                        
+                        VStack {
+                            HStack {
+                                ZStack {
+                                    if current.uvIndex.category.rawValue == "low" {
+                                        Image("low")
+                                    } else if current.uvIndex.category.rawValue == "moderate" {
+                                        Image("mod")
+                                    } else if current.uvIndex.category.rawValue == "high" {
+                                        Image("high")
+                                    } else if current.uvIndex.category.rawValue == "veryHigh" {
+                                        Image("very high")
+                                    } else {
+                                        Image("extreme")
+                                    }
                                     
-                if let current = currentWeather {
+                                    Text("\(current.uvIndex.value)").font(Font.custom("PottaOne-Regular", size: 36)).foregroundColor(.white)
+                                }
+                                
+                                Spacer().frame(width: 600)
+                            }
+                            
+                            Spacer().frame(height: 900)
+                        }
+                        
+                    } else {
+                        Image("wallpaper-night")
+                    }
+                    
                     if current.condition.description.contains("Clear") {
                         SpriteView(scene: ParticleScene(fileName: "Clear.sks", anchor: CGPoint(x: 0.5, y: 1)), options: [.allowsTransparency])
                     } else if current.condition.description.contains("Haze") || current.condition.description.contains("Fog") {
                         SpriteView(scene: ParticleScene(fileName: "Haze.sks", anchor: CGPoint(x: 0.5, y: 1)), options: [.allowsTransparency])
                     } else if current.condition.description.contains("Rain") {
-                        SpriteView(scene: Fall(fileName: "RainFall.sks"), options: [.allowsTransparency])
-                            .edgesIgnoringSafeArea(.all) // Make sure it covers the whole screen
+                        SpriteView(scene: ParticleScene(fileName: "RainFall.sks", anchor: CGPoint(x: 0.5, y: 1)), options: [.allowsTransparency])
+                            .edgesIgnoringSafeArea(.all)
                     } else if current.condition.description.contains("Cloudy") {
-                        SpriteView(scene: Slide(fileName: "Cloudy.sks"), options: [.allowsTransparency])
+                        SpriteView(scene: ParticleScene(fileName: "Cloudy.sks", anchor: CGPoint(x: 0.0, y: 1)), options: [.allowsTransparency])
                     } else if current.condition.description.contains("Windy") {
-                        SpriteView(scene: Slide(fileName: "Wind.sks"), options: [.allowsTransparency])
+                        SpriteView(scene: ParticleScene(fileName: "Wind.sks", anchor: CGPoint(x: 0.0, y: 1)), options: [.allowsTransparency])
+                    } else if current.condition.description.contains("Snow") {
+                        SpriteView(scene: ParticleScene(fileName: "SnowFall.sks", anchor: CGPoint(x: 0.5, y: 1)), options: [.allowsTransparency])
                     }
                         
-                    Image(systemName: current.symbolName)
-                        .font(.system(size: 75.0, weight: .bold))
+                    HStack {
+                        VStack {
+                            if current.temperature.value > 25 {
+                                Image("temp-high").resizable().scaledToFit().frame(width: 75).offset(y: isBouncing ? 2 : -2)
+                                    .animation(.interpolatingSpring(stiffness: 50, damping: 1).repeatForever(autoreverses: true))
+                                    .onAppear {
+                                        Timer.scheduledTimer(withTimeInterval: 0.5, repeats: true) { _ in
+                                            withAnimation {
+                                                isBouncing.toggle()
+                                            }
+                                        }
+                                    }
+                            } else if current.temperature.value > 15 {
+                                Image("temp-med").resizable().scaledToFit().frame(width: 75)
+                            } else {
+                                Image("temp-low").resizable().scaledToFit().frame(width: 75).offset(y: isBouncing ? 2 : -2)
+                                    .animation(.interpolatingSpring(stiffness: 50, damping: 1).repeatForever(autoreverses: true))
+                                    .onAppear {
+                                        Timer.scheduledTimer(withTimeInterval: 0.5, repeats: true) { _ in
+                                            withAnimation {
+                                                isBouncing.toggle()
+                                            }
+                                        }
+                                    }
+                            }
+                            
+                            let tUnit = current.temperature.unit.symbol
+                            Text("\(current.temperature.value.formatted(.number.precision(.fractionLength(1))))\(tUnit)").font(Font.custom("PottaOne-Regular", size: 24)).foregroundColor(.black)
+                        }.offset(y: 100)
                         
-                    Text(current.condition.description)
-                        .font(Font.system(.largeTitle))
-                        
-                    let tUnit = current.temperature.unit.symbol
-                    Text("\(current.temperature.value.formatted(.number.precision(.fractionLength(1))))\(tUnit)")
-                        .font(Font.system(.title))
-                        
+                        Spacer().frame(width: 650)
+                    }
+                    
                     Spacer()
                         
-                    VStack(alignment: .leading) {
-                        Text("Feels like: \(locationManager.currentWeather?.temperature.value.formatted(.number.precision(.fractionLength(1))) ?? "-") \(tUnit)")
-                            .font(Font.system(.title2))
-                        Text("Humidity: \((current.humidity * 100).formatted(.number.precision(.fractionLength(1))))%")
-                            .font(Font.system(.title2))
-                        Text("Wind Speed: \(Int(current.wind.speed.value)), \(current.wind.compassDirection.description)")
-                            .font(Font.system(.title2))
-                        Text("UV Index: \(current.uvIndex.value)")
-                            .font(Font.system(.title2))
+                    if isSunscreen {
+                        PetSunscreenView(isSunscreen: self.$isSunscreen).frame(width: 350, height: 460).offset(y: 50)
+                    } else if current.condition.description.contains("Rain") {
+                        Image("chara-cold")
+                            .offset(y: 50)
+                            .animation(.bouncy)
+                    } else if current.condition.description.contains("Clear") {
+                        Image("chara-happy")
+                            .offset(y: 50)
+                            .offset(y: isBouncing ? 2 : -2)
+                            .animation(.interpolatingSpring(stiffness: 50, damping: 1).repeatForever(autoreverses: true))
+                            .onAppear {
+                                Timer.scheduledTimer(withTimeInterval: 0.5, repeats: true) { _ in
+                                    withAnimation {
+                                        isBouncing.toggle()
+                                    }
+                                }
+                            }
+                    } else {
+                        Image("chara")
+                            .offset(y: 50)
+                            .animation(.bouncy)
                     }
                 }
                 
                 VStack {
                     Spacer().frame(height: /*@START_MENU_TOKEN@*/100/*@END_MENU_TOKEN@*/)
                     HStack {
-                        ZStack {
-                            Image("coin-frame")
-                            Text("300")
-                                .font(Font.custom("PottaOne-Regular", size: 36))
-                                .foregroundColor(.white)
-                                .offset(x: 40)
-                        }
                         Spacer()
-                            .frame(width: 450)
+                            .frame(width: 650)
 
                         NavigationLink(
                             destination: MapView(region: MKCoordinateRegion(
@@ -145,128 +193,19 @@ struct HomeView: View {
                     }
                     Spacer().frame(height: 150)
                 }
-                
-                if isSunscreen {
-                    PetSunscreenView(isSunscreen: self.$isSunscreen).frame(width: 350, height: 460).offset(y: 50)
-
-                } else {
-                    Image("chara")
-                        .offset(y: 50)
-                        .animation(.bouncy)
-                }
-
-                Text("\(currentWeather?.condition.description)")
             }
             .task {
                 self.locationManager.updateLocation(handler: locationUpdated)
-            }
-            .onChange(of: locationManager.locationString) { _, _ in
-
-                if let currentLocation = locationManager.location {
-                    formatter.timeStyle = .medium
-                    formatter.timeZone = locationManager.timeZone
-                    DispatchQueue.main.async { [self] in
-                        self.isLoading = false
-                    }
-
-                    Task.detached {
-                        if let currentLocation = await locationManager.location {
-                            let weatherData = await weatherServiceHelper.currentWeather(for: CLLocation(latitude: currentLocation.latitude, longitude: currentLocation.longitude))
-                           
-                            DispatchQueue.main.async { [self] in
-                                self.currentWeather = weatherData
-                                self.stateText = ""
-                            }
-                        }
-                    }
-                } else {
-                    DispatchQueue.main.async { [self] in
-                        self.stateText = "Cannot get your location."
-                        self.isLoading = false
-                    }
-                }
             }
         }
         .navigationBarBackButtonHidden()
     }
     
-    func locationUpdated(location: CLLocation?, error: Error?) {
-        if let currentLocation = location, error == nil {
-            DispatchQueue.main.async { [self] in
-                self.isLoading = false
-            }
-
-            Task.detached {
-                if let currentLocation = location {
-                    let weatherData = await weatherServiceHelper.currentWeather(for: currentLocation)
-//                    let attributionData = await weatherServiceHelper.weatherAttribution()
-
-                    DispatchQueue.main.async { [self] in
-                        self.currentWeather = weatherData
-//                        self.attribution = attributionData
-                        self.stateText = ""
-                    }
-                }
-            }
-        } else {
-            DispatchQueue.main.async { [self] in
-                self.stateText = "Cannot get your location. \n \(error?.localizedDescription ?? "")"
-                self.isLoading = false
-            }
-        }
-    }
+    func locationUpdated(location: CLLocation?, error: Error?) {}
 }
 
 #Preview {
     HomeView()
-}
-
-class Fall: SKScene {
-    init(fileName: String) {
-        super.init(size: UIScreen.main.bounds.size)
-        self.scaleMode = .resizeFill
-        self.anchorPoint = CGPoint(x: 0.5, y: 1)
-        self.backgroundColor = .clear
-        
-        if let node = SKEmitterNode(fileNamed: fileName) {
-            addChild(node)
-        } else {
-            print("Error: Could not load emitter node with file name: \(fileName)")
-        }
-    }
-    
-    @available(*, unavailable)
-    required init?(coder aDecoder: NSCoder) {
-        fatalError("init(coder:) has not been implemented")
-    }
-    
-    override func sceneDidLoad() {
-        // Additional setup if needed
-    }
-}
-
-class Slide: SKScene {
-    init(fileName: String) {
-        super.init(size: UIScreen.main.bounds.size)
-        self.scaleMode = .resizeFill
-        self.anchorPoint = CGPoint(x: 0.0, y: 1)
-        self.backgroundColor = .clear
-        
-        if let node = SKEmitterNode(fileNamed: fileName) {
-            addChild(node)
-        } else {
-            print("Error: Could not load emitter node with file name: \(fileName)")
-        }
-    }
-    
-    @available(*, unavailable)
-    required init?(coder aDecoder: NSCoder) {
-        fatalError("init(coder:) has not been implemented")
-    }
-    
-    override func sceneDidLoad() {
-        // Additional setup if needed
-    }
 }
 
 class ParticleScene: SKScene {
