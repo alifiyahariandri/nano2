@@ -19,6 +19,7 @@
 		9B3FB7082BF5A7A70044DE7F /* Nano2UITests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9B3FB7072BF5A7A70044DE7F /* Nano2UITests.swift */; };
 		9B3FB70A2BF5A7A70044DE7F /* Nano2UITestsLaunchTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9B3FB7092BF5A7A70044DE7F /* Nano2UITestsLaunchTests.swift */; };
 		9B3FB7182BF5A9080044DE7F /* LocationManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9B3FB7172BF5A9080044DE7F /* LocationManager.swift */; };
+		9B84D47E2C04034F0003BE43 /* PetUmbrellaView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9B84D47D2C04034F0003BE43 /* PetUmbrellaView.swift */; };
 		9B98842C2BFD937D00EA0BDB /* MapView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9B98842B2BFD937D00EA0BDB /* MapView.swift */; };
 		9BD7C4232C01E27700BECAC4 /* CustomLocationView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9BD7C4222C01E27700BECAC4 /* CustomLocationView.swift */; };
 		9BD7C4282C0210CC00BECAC4 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 9BD7C4262C0210CC00BECAC4 /* Assets.xcassets */; };
@@ -65,6 +66,7 @@
 		9B3FB7072BF5A7A70044DE7F /* Nano2UITests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Nano2UITests.swift; sourceTree = "<group>"; };
 		9B3FB7092BF5A7A70044DE7F /* Nano2UITestsLaunchTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Nano2UITestsLaunchTests.swift; sourceTree = "<group>"; };
 		9B3FB7172BF5A9080044DE7F /* LocationManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LocationManager.swift; sourceTree = "<group>"; };
+		9B84D47D2C04034F0003BE43 /* PetUmbrellaView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PetUmbrellaView.swift; sourceTree = "<group>"; };
 		9B98842B2BFD937D00EA0BDB /* MapView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MapView.swift; sourceTree = "<group>"; };
 		9B9D74A42BF8D99F00B83CA6 /* Nano2.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = Nano2.entitlements; sourceTree = "<group>"; };
 		9BD7C4222C01E27700BECAC4 /* CustomLocationView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CustomLocationView.swift; sourceTree = "<group>"; };
@@ -189,6 +191,7 @@
 				9B3672502BFBB345007E9CA8 /* HomeView.swift */,
 				9B98842B2BFD937D00EA0BDB /* MapView.swift */,
 				9BDD444E2C008B4400710400 /* PetSunscreenView.swift */,
+				9B84D47D2C04034F0003BE43 /* PetUmbrellaView.swift */,
 				9BD7C4222C01E27700BECAC4 /* CustomLocationView.swift */,
 			);
 			path = Views;
@@ -352,6 +355,7 @@
 				9B3FB6ED2BF5A7A60044DE7F /* Nano2App.swift in Sources */,
 				9B3672512BFBB345007E9CA8 /* HomeView.swift in Sources */,
 				9B3FB7182BF5A9080044DE7F /* LocationManager.swift in Sources */,
+				9B84D47E2C04034F0003BE43 /* PetUmbrellaView.swift in Sources */,
 				9B3672582BFC9E4B007E9CA8 /* ModalView.swift in Sources */,
 				9B98842C2BFD937D00EA0BDB /* MapView.swift in Sources */,
 				9BD7C4232C01E27700BECAC4 /* CustomLocationView.swift in Sources */,

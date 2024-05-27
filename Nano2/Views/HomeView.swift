@@ -13,12 +13,18 @@ import WeatherKit
 
 struct HomeView: View {
     @State private var isBouncing = false
+    @State private var isTempBouncing = false
 
     @State var currentLocation: CLLocation?
     
     @ObservedObject var locationManager = LocationManager()
     
     @State var isSunscreen: Bool = false
+    @State var isSunscreenNeeded: Bool = false
+    
+    @State var isUmbrella: Bool = false
+    
+    @State var isRain: Bool = false
             
     var body: some View {
         NavigationStack {
@@ -35,11 +41,17 @@ struct HomeView: View {
                                     } else if current.uvIndex.category.rawValue == "moderate" {
                                         Image("mod")
                                     } else if current.uvIndex.category.rawValue == "high" {
-                                        Image("high")
+                                        Image("high").onAppear(perform: {
+                                            self.isSunscreenNeeded = true
+                                        })
                                     } else if current.uvIndex.category.rawValue == "veryHigh" {
-                                        Image("very high")
+                                        Image("very high").onAppear(perform: {
+                                            self.isSunscreenNeeded = true
+                                        })
                                     } else {
-                                        Image("extreme")
+                                        Image("extreme").onAppear(perform: {
+                                            self.isSunscreenNeeded = true
+                                        })
                                     }
                                     
                                     Text("\(current.uvIndex.value)").font(Font.custom("PottaOne-Regular", size: 36)).foregroundColor(.white)
@@ -57,40 +69,54 @@ struct HomeView: View {
                     
                     if current.condition.description.contains("Clear") {
                         SpriteView(scene: ParticleScene(fileName: "Clear.sks", anchor: CGPoint(x: 0.5, y: 1)), options: [.allowsTransparency])
+                            .onAppear(perform: {
+                                self.isRain = false
+                            })
                     } else if current.condition.description.contains("Haze") || current.condition.description.contains("Fog") {
-                        SpriteView(scene: ParticleScene(fileName: "Haze.sks", anchor: CGPoint(x: 0.5, y: 1)), options: [.allowsTransparency])
+                        SpriteView(scene: ParticleScene(fileName: "Haze.sks", anchor: CGPoint(x: 0.5, y: 1)), options: [.allowsTransparency]).onAppear(perform: {
+                            self.isRain = false
+                        })
                     } else if current.condition.description.contains("Rain") {
                         SpriteView(scene: ParticleScene(fileName: "RainFall.sks", anchor: CGPoint(x: 0.5, y: 1)), options: [.allowsTransparency])
                             .edgesIgnoringSafeArea(.all)
+                            .onAppear(perform: {
+                                self.isRain = true
+                            })
                     } else if current.condition.description.contains("Cloudy") {
-                        SpriteView(scene: ParticleScene(fileName: "Cloudy.sks", anchor: CGPoint(x: 0.0, y: 1)), options: [.allowsTransparency])
+                        SpriteView(scene: ParticleScene(fileName: "Cloudy.sks", anchor: CGPoint(x: 0.0, y: 1)), options: [.allowsTransparency]).onAppear(perform: {
+                            self.isRain = false
+                        })
                     } else if current.condition.description.contains("Windy") {
-                        SpriteView(scene: ParticleScene(fileName: "Wind.sks", anchor: CGPoint(x: 0.0, y: 1)), options: [.allowsTransparency])
+                        SpriteView(scene: ParticleScene(fileName: "Wind.sks", anchor: CGPoint(x: 0.0, y: 1)), options: [.allowsTransparency]).onAppear(perform: {
+                            self.isRain = false
+                        })
                     } else if current.condition.description.contains("Snow") {
-                        SpriteView(scene: ParticleScene(fileName: "SnowFall.sks", anchor: CGPoint(x: 0.5, y: 1)), options: [.allowsTransparency])
+                        SpriteView(scene: ParticleScene(fileName: "SnowFall.sks", anchor: CGPoint(x: 0.5, y: 1)), options: [.allowsTransparency]).onAppear(perform: {
+                            self.isRain = false
+                        })
                     }
                         
                     HStack {
                         VStack {
-                            if current.temperature.value > 25 {
-                                Image("temp-high").resizable().scaledToFit().frame(width: 75).offset(y: isBouncing ? 2 : -2)
+                            if current.temperature.value > 35 {
+                                Image("temp-high").resizable().scaledToFit().frame(width: 75).offset(y: isTempBouncing ? 2 : -2)
                                     .animation(.interpolatingSpring(stiffness: 50, damping: 1).repeatForever(autoreverses: true))
                                     .onAppear {
                                         Timer.scheduledTimer(withTimeInterval: 0.5, repeats: true) { _ in
                                             withAnimation {
-                                                isBouncing.toggle()
+                                                isTempBouncing.toggle()
                                             }
                                         }
                                     }
                             } else if current.temperature.value > 15 {
                                 Image("temp-med").resizable().scaledToFit().frame(width: 75)
                             } else {
-                                Image("temp-low").resizable().scaledToFit().frame(width: 75).offset(y: isBouncing ? 2 : -2)
+                                Image("temp-low").resizable().scaledToFit().frame(width: 75).offset(y: isTempBouncing ? 2 : -2)
                                     .animation(.interpolatingSpring(stiffness: 50, damping: 1).repeatForever(autoreverses: true))
                                     .onAppear {
                                         Timer.scheduledTimer(withTimeInterval: 0.5, repeats: true) { _ in
                                             withAnimation {
-                                                isBouncing.toggle()
+                                                isTempBouncing.toggle()
                                             }
                                         }
                                     }
@@ -106,8 +132,16 @@ struct HomeView: View {
                     Spacer()
                         
                     if isSunscreen {
-                        PetSunscreenView(isSunscreen: self.$isSunscreen).frame(width: 350, height: 460).offset(y: 50)
-                    } else if current.condition.description.contains("Rain") {
+                        PetSunscreenView(isSunscreen: self.$isSunscreen, isSunscreenNeeded: self.$isSunscreenNeeded).frame(width: 350, height: 460).offset(y: 50)
+                    } else if isSunscreenNeeded {
+                        Image("chara-hot")
+                            .offset(y: 50)
+                            .animation(.bouncy)
+                        Image("bubble")
+                            .offset(x: -200, y: -100)
+                    } else if isUmbrella {
+                        PetUmbrellaView(isUmbrella: self.$isUmbrella)
+                    } else if isRain {
                         Image("chara-cold")
                             .offset(y: 50)
                             .animation(.bouncy)
@@ -187,6 +221,27 @@ struct HomeView: View {
                                 Image("sunscreen")
                                 if self.isSunscreen {
                                     Rectangle().frame(width: 150, height: 150).foregroundColor(.black).opacity(0.5).cornerRadius(50)
+                                }
+                                
+                                if !isSunscreenNeeded {
+                                    Image("no")
+                                        .offset(x: 55, y: -55)
+                                }
+                            }
+                        }
+                        
+                        Spacer().frame(width: 20)
+                        
+                        Button {
+                            self.isUmbrella.toggle()
+                        } label: {
+                            ZStack {
+                                Image("button")
+                                Image("umbrella")
+                                
+                                if !isRain {
+                                    Image("no")
+                                        .offset(x: 55, y: -55)
                                 }
                             }
                         }

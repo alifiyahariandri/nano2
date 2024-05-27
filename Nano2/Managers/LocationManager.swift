@@ -17,7 +17,6 @@ class LocationManager: NSObject, CLLocationManagerDelegate, ObservableObject {
     @Published var locationString: String?
     @Published var locationCityCountry: String?
 
-    
     @Published var dateTime: Date = .init()
     @Published var timeZone: TimeZone?
     
@@ -29,10 +28,8 @@ class LocationManager: NSObject, CLLocationManagerDelegate, ObservableObject {
     @Published var formattedTime: String?
     @Published var isNight: Bool?
 
-    
     var customLocation: CLLocation? // Add custom location property
 
-    
     override init() {
         super.init()
         manager.delegate = self
@@ -41,13 +38,13 @@ class LocationManager: NSObject, CLLocationManagerDelegate, ObservableObject {
     }
     
     // New initializer to accept custom location
-        init(customLocation: CLLocation?) {
-            self.customLocation = customLocation
-            super.init()
-            manager.delegate = self
-            manager.desiredAccuracy = kCLLocationAccuracyKilometer
-            manager.requestWhenInUseAuthorization()
-        }
+    init(customLocation: CLLocation?) {
+        self.customLocation = customLocation
+        super.init()
+        manager.delegate = self
+        manager.desiredAccuracy = kCLLocationAccuracyKilometer
+        manager.requestWhenInUseAuthorization()
+    }
     
     func locationManager(_ manager: CLLocationManager, didUpdateLocations locations: [CLLocation]) {
         location = customLocation?.coordinate ?? locations.first?.coordinate // Use custom location if available
@@ -66,8 +63,6 @@ class LocationManager: NSObject, CLLocationManagerDelegate, ObservableObject {
                 self.formattedTime = self.formatter.string(from: self.dateTime)
                 let index = self.formattedTime?.firstIndex(of: ".")!
                 let newStr = self.formattedTime?.substring(to: index!)
-                
-
                 
                 if Int(newStr ?? "0") ?? 0 < 12 {
                     self.isNight = false
@@ -101,7 +96,6 @@ class LocationManager: NSObject, CLLocationManagerDelegate, ObservableObject {
             }
             
             if let placemarks = placemarks, let placemark = placemarks.first {
-                print(placemark.name!)
                 completion(placemark)
             } else {
                 print("No Matching Address Found")
@@ -111,15 +105,13 @@ class LocationManager: NSObject, CLLocationManagerDelegate, ObservableObject {
     }
     
     func locationUpdated(location: CLLocation?) {
-        if let currentLocation = location {
+        if let _ = location {
             Task.detached {
                 if let currentLocation = location {
                     let weatherData = await self.weatherServiceHelper.currentWeather(for: currentLocation)
 
                     DispatchQueue.main.async { [self] in
                         self.currentWeather = weatherData
-                        
-                        print("PPPPPPPP" + (self.currentWeather?.symbolName ?? "yayfa"))
                     }
                 }
             }

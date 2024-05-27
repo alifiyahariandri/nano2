@@ -19,18 +19,20 @@ struct MapView: View {
         NavigationStack {
             ZStack {
                 Group {
-                    if locationManager.location != nil {
+//                    if region != nil {
                         Map(coordinateRegion: $region, interactionModes: .all, showsUserLocation: true)
                             .onChange(of: region) { newRegion in
                                 region = newRegion
                                 
                                 print(region)
                             }
-                    } else {
-                        Text("Locating...")
-                    }
+//                    } else {
+//                        Text("\(region)")
+//                        Text("Locating...")
+//                    }
                 }.task {
                     self.locationManager.updateLocation(handler: locationUpdated)
+                    
                 }
                 
                 Image("pin").resizable().aspectRatio(contentMode: .fit).frame(width: 50, height: 50).offset(y: -25)
@@ -69,7 +71,10 @@ struct MapView: View {
         .navigationBarBackButtonHidden()
     }
         
-    func locationUpdated(location: CLLocation?, error: Error?) {}
+    func locationUpdated(location: CLLocation?, error: Error?) {
+        print(locationManager.location)
+
+    }
 }
 
 extension MKCoordinateRegion: Equatable {

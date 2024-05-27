@@ -12,12 +12,16 @@ import SwiftUI
 import WeatherKit
 
 struct CustomLocation: View {
-    @State var isBouncing: Bool = false
-    
+    @State private var isBouncing = false
+    @State private var isRain = false
+
+    @State private var isTempBouncing = false
+
     @State var currentWeather: CurrentWeather?
     
     @State var isSunscreen: Bool = false
-    
+    @State var isSunscreenNeeded: Bool = false
+
     var weatherServiceHelper = WeatherData.shared
     
     var customLocation: CLLocation
@@ -114,7 +118,7 @@ struct CustomLocation: View {
                     Spacer()
                         
                     if isSunscreen {
-                        PetSunscreenView(isSunscreen: self.$isSunscreen).frame(width: 350, height: 460).offset(y: 50)
+                        PetSunscreenView(isSunscreen: self.$isSunscreen, isSunscreenNeeded: $isSunscreenNeeded).frame(width: 350, height: 460).offset(y: 50)
                     } else if current.condition.description.contains("Rain") {
                         Image("chara-cold")
                             .offset(y: 50)
@@ -206,6 +210,27 @@ struct CustomLocation: View {
                                 Image("sunscreen")
                                 if self.isSunscreen {
                                     Rectangle().frame(width: 150, height: 150).foregroundColor(.black).opacity(0.5).cornerRadius(50)
+                                }
+                                
+                                if !isSunscreenNeeded {
+                                    Image("no")
+                                        .offset(x: 55, y: -55)
+                                }
+                            }
+                        }
+                        
+                        Spacer().frame(width: 20)
+                        
+                        Button {
+                            self.isUmbrella.toggle()
+                        } label: {
+                            ZStack {
+                                Image("button")
+                                Image("umbrella")
+                                
+                                if !isRain {
+                                    Image("no")
+                                        .offset(x: 55, y: -55)
                                 }
                             }
                         }

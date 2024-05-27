@@ -8,6 +8,7 @@ struct Line {
 
 struct PetSunscreenView: View {
     @Binding var isSunscreen: Bool
+    @Binding var isSunscreenNeeded: Bool
 
     @State var touchedAreaPercentage: Double = 0
     
@@ -44,15 +45,18 @@ struct PetSunscreenView: View {
                             self.lines.append(currentLine)
                             // Calculate the percentage of the touched area
                             self.touchedAreaPercentage = calculateTouchedAreaPercentage(canvasSize: CGSize(width: 200, height: 200))
-                            print("Touched Area Percentage: \(touchedAreaPercentage)%")
                             
                             self.imageName = "chara3"
                             
                             if self.touchedAreaPercentage > 25 {
-                                print("HORE UDAH")
                                 isDrawingAllowed = false
                                 showAlert = true
                                 clearDrawing()
+                                isSunscreenNeeded.toggle()
+                                if self.isSunscreenNeeded {
+                                    isSunscreenNeeded.toggle()
+
+                                }
                             }
                         }
                         .onEnded { _ in
@@ -64,17 +68,20 @@ struct PetSunscreenView: View {
                             self.currentLine = Line(points: [], color: currentLine.color, lineWidth: thickness)
                             
                             if self.touchedAreaPercentage > 5 {
-                                print("HORE UDAH")
                                 isDrawingAllowed = false
                                 showAlert = true
                                 clearDrawing()
+                                if self.isSunscreenNeeded {
+                                    isSunscreenNeeded.toggle()
+
+                                }
                             }
                         }
                 )
                 .alert(isPresented: $showAlert) {
                     Alert(
                         title: Text("Success"),
-                        message: Text("Touched area percentage exceeded 25%"),
+                        message: Text("Apply sunscreen succeed, thank you!"),
                         dismissButton: .default(Text("OK")) {
                             isSunscreen = false
                         }
@@ -113,4 +120,3 @@ struct SVGPath: Shape {
         return path
     }
 }
-
